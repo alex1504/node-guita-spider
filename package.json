@@ -1,0 +1,23 @@
+{
+  "name": "guita-spider",
+  "version": "1.0.0",
+  "description": "A spider to scratch guita data from several guita website.",
+  "main": "main.js",
+  "scripts": {
+    "dev": "rollup ./src/main.js --o ./dist/main.js --f cjs --w",
+    "build": "rollup ./src/main.js --o ./dist/main.js --f cjs",
+    "start": "node ./dist/main.js"
+  },
+  "keywords": [
+    "node",
+    "spider",
+    "guita"
+  ],
+  "author": "jerry",
+  "license": "MIT",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
+    "superagent": "^3.8.3",
+    "superagent-charset": "^1.2.0"
+  }
+}
