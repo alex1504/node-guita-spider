@@ -4,9 +4,11 @@
   "description": "A spider to scratch guita data from several guita website.",
   "main": "main.js",
   "scripts": {
-    "dev": "rollup ./src/main.js --o ./dist/main.js --f cjs --w",
-    "build": "rollup ./src/main.js --o ./dist/main.js --f cjs",
-    "start": "node ./dist/main.js"
+    "crawler:dev": "rollup ./spiders/src/main.js --o ./spiders/dist/main.js --f cjs --w",
+    "crawler:build": "rollup ./spiders/src/main.js --o ./spiders/dist/main.js --f cjs",
+    "server:start": "node ./server/bin/www",
+    "server:dev": "./node_modules/.bin/nodemon ./server/bin/www",
+    "server:prd": "pm2 start ./server/bin/www"
   },
   "keywords": [
     "node",
@@ -16,8 +18,23 @@
   "author": "jerry",
   "license": "MIT",
   "dependencies": {
+    "debug": "^2.6.3",
+    "ejs": "~2.3.3",
+    "koa": "^2.2.0",
+    "koa-bodyparser": "^3.2.0",
+    "koa-convert": "^1.2.0",
+    "koa-json": "^2.0.2",
+    "koa-logger": "^2.0.1",
+    "koa-onerror": "^1.2.1",
+    "koa-router": "^7.1.1",
+    "koa-static": "^3.0.0",
+    "koa-views": "^5.2.1",
+    "async": "^2.6.0",
     "cheerio": "^1.0.0-rc.2",
     "superagent": "^3.8.3",
     "superagent-charset": "^1.2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.8.1"
   }
 }

@@ -1,20 +1,19 @@
 const superagent = require('superagent');
 const charset = require('superagent-charset');
 const cheerio = require('cheerio');
+const async = require('async');
 
 charset(superagent);
 
 export default class {
+    /**
+     * 构造函数
+     * @param options:{page：抓取页数, limit：并发数}
+     */
     constructor(options) {
-        /**
-         * {string}  url   抓取地址 required
-         * {string}  mode  抓取模式 'detail': 详情页  'list': 列表页
-         * {numbaer} page  抓取页数
-         */
-        /*const defaultOpts = {
-            url: 'https://www.17jita.com/tab/whole_8290.html',
-            mode: 'detail',
-            page: 1
+        const defaultOpts = {
+            page: 1,
+            limit: 5
         };
         let opts = defaultOpts;
         if (options) {
@@ -24,13 +23,8 @@ export default class {
                 }
             }
         }
-        this.url = opts.url;
-        this.mode = opts.mode;
-        this.page = opts.page;*/
-    }
-
-    init() {
-        this._fetchList('https://www.17jita.com/tab/index.php', 2);
+        this.page = opts.page;
+        this.limit = opts.limit;
     }
 
     /**
@@ -39,7 +33,7 @@ export default class {
      * @returns {Promise<{song_name: *, author_name: T.author_name, song_poster: T.song_poster, chord_images: jQuery[], query: *, view_count: number, collect_count: number, search_count: number}>}
      * @private
      */
-    async _fetchDetail(url) {
+    async _fetchDetail(url, cb) {
         const res = await superagent
             .get(url)
             .charset('gbk');
@@ -47,7 +41,17 @@ export default class {
         const $ = cheerio.load(html);
         const title = $('h1.ph').text();
         const song_name = this._analyseTitle(title);
-        const {song_poster, author_name} = await this._getSongInfo(song_name);
+        let song_poster;
+        let author_name;
+        try {
+            const songInfo = await this._getSongInfo(song_name);
+            song_poster = songInfo.song_poster;
+            author_name = songInfo.author_name;
+            console.log(author_name, 1111111)
+        } catch (err) {
+            cb(null);
+            return;
+        }
         const query = song_name;
         const imgs = Array.prototype.slice.call($('#article_contents img'));
         const chord_images = imgs.map((el) => {
@@ -56,7 +60,7 @@ export default class {
         const view_count = 0;
         const collect_count = 0;
         const search_count = 0;
-        /*console.log({
+        const data = {
             song_name,
             author_name,
             song_poster,
@@ -65,18 +69,9 @@ export default class {
             view_count,
             collect_count,
             search_count
-        });
-        console.log("\n——————————————————")*/
-        return {
-            song_name,
-            author_name,
-            song_poster,
-            chord_images,
-            query,
-            view_count,
-            collect_count,
-            search_count
-        }
+        };
+        typeof cb === 'function' && cb(null, data);
+        console.log(`$$结束抓取${url}$$`);
     }
 
     /**
@@ -94,15 +89,17 @@ export default class {
                 type: '1'
             }).then(res => {
                 res = JSON.parse(res.text);
-                const songs = res.result.songs;
-                if (songs.length) {
+                const songs = res.result && res.result.songs;
+                if (songs && songs.length) {
                     return {
                         song_poster: songs[0].album.picUrl,
                         author_name: songs[0].artists[0].name
                     }
                 } else {
-                    return ''
+                    return {song_poster: '', author_name: ''}
                 }
+            }).catch(err => {
+                console.log(err);
             });
     }
 
@@ -122,7 +119,7 @@ export default class {
             return match[1] || ''
         } else {
             match = title.match(regExp[1]);
-            return match[1] || ''
+            return match && match[1] || ''
         }
     }
 
@@ -133,19 +130,43 @@ export default class {
      * @returns {Promise<void>}
      * @private
      */
-    async _fetchList(url, page) {
-        const result = [];
-        const detailPageUrls = await this._analyseList(url, page);
-         detailPageUrls.forEach(async url => {
-            let data = await this._fetchDetail(url);
-            result.push(data)
-        });
-        console.log(result)
+    async fetchList() {
+        const url = 'https://www.17jita.com/tab/index.php';
+        const detailPageUrls = await this._analyseList(url, this.page);
+        return new Promise((resolve, reject) => {
+            async.mapLimit(detailPageUrls, this.limit, (url, cb) => {
+                console.log(`**开始抓取${url}**`);
+                this._fetchDetail(url, cb);
+            }, (err, data) => {
+                if (err) {
+                    reject(err)
+                } else {
+                    resolve(data)
+                }
+            });
+        })
+    }
+
+    async fetchTop100List() {
+        const url = 'https://www.17jita.com/tab/topic/top100.html';
+        const detailPageUrls = await this._analyseTop100List(url);
+        return new Promise((resolve, reject) => {
+            async.mapLimit(detailPageUrls, this.limit, (url, cb) => {
+                console.log(`**开始抓取${url}**`);
+                this._fetchDetail(url, cb);
+            }, (err, data) => {
+                if (err) {
+                    reject(err)
+                } else {
+                    resolve(data)
+                }
+            });
+        })
     }
 
     /**
-     * 分析单页列表页获取详情页url
-     * @param url
+     * 分析单页列表页从而获取详情页urls
+     * @param url 列表页url
      * @param page
      * @returns {Promise<Array>}
      * @private
@@ -166,6 +187,28 @@ export default class {
                 result.push(href)
             });
         }
+        return result;
+    }
+
+    /**
+     * 分析top100列表页从而获取详情页urls
+     * @param url top100列表页url
+     * @returns {Promise<Array>}
+     * @private
+     */
+    async _analyseTop100List(url) {
+        let result = [];
+        const res = await
+            superagent
+                .get(url)
+                .charset('gbk');
+        const html = res.text;
+        const $ = cheerio.load(html);
+        $('#article_content ul li').each((index, el) => {
+            const id = $(el).find('a').eq(1).attr('href').match(/\d+/);
+            const href = `https://www.17jita.com/tab/whole_${id}.html`;
+            result.push(href)
+        });
         return result;
     }
 
