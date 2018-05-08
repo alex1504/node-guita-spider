@@ -44,7 +44,10 @@ router.get('/search', async (ctx, next) => {
     }
 }, async (ctx, next) => {
     const {q} = ctx.query;
-    const spider_cc = new Spider_cc();
+    const page = ctx.query.page || 1;
+    const spider_cc = new Spider_cc({
+        page: page
+    });
     const result = await spider_cc.fetchSearchResult(q);
     return result;
 });

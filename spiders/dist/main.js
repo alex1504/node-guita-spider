@@ -228,7 +228,8 @@ class Spider_cc {
     constructor(options) {
         const defaultOpts = {
             page: 1,
-            limit: 5
+            limit: 5,
+            timeout: 4000
         };
         let opts = defaultOpts;
         if (options) {
@@ -240,6 +241,7 @@ class Spider_cc {
         }
         this.page = opts.page;
         this.limit = opts.limit;
+        this.timeout = opts.timeout;
     }
 
     init() {
@@ -248,10 +250,13 @@ class Spider_cc {
 
     async fetchSearchResult(queryString) {
         const detailPageUrls = await this._fetchDetailLinks(queryString);
+        console.log(detailPageUrls);
         return new Promise((resolve, reject) => {
             async$1.mapLimit(detailPageUrls, this.limit, (url, cb) => {
-                console.log(`**开始抓取${url}**`);
-                this._fetchDetail(url, cb);
+                if (url) {
+                    console.log(`**开始抓取${url}**`);
+                    this._fetchDetail(url, cb);
+                }
             }, (err, data) => {
                 if (err) {
                     reject(err);
@@ -291,12 +296,13 @@ class Spider_cc {
         let result = [];
         const res = await superagent$1
             .get(url)
+            .timeout(this.timeout)
             .charset('gbk');
         const html = res.text;
         const $ = cheerio$1.load(html);
         const total = $("#xspace-itemreply").find(".list_searh").length;
         if (!total) {
-            typeof cb === 'function' && cb(null);
+            typeof cb === 'function' && cb(null, result);
         } else {
             $(".list_searh .pu_title .search_url a").each((index, el) => {
                 const href = $(el).attr('href');
@@ -307,9 +313,17 @@ class Spider_cc {
     }
 
     async _fetchDetail(url, cb) {
-        const res = await superagent$1
-            .get(url)
-            .charset('gbk');
+        let res;
+        try {
+            res = await superagent$1
+                .get(url)
+                .timeout(this.timeout)
+                .charset('gbk');
+        } catch (err) {
+            console.log(err);
+            typeof cb === 'function' && cb(null);
+            return;
+        }
         const html = res.text;
         const $ = cheerio$1.load(html);
         const title = $('#navigation p').text();
@@ -321,10 +335,12 @@ class Spider_cc {
             const songInfo = await this._getSongInfo(song_name);
             song_poster = songInfo.song_poster;
         } catch (err) {
-            cb(null);
+            typeof cb === 'function' && cb(null);
             return;
         }
         const query = song_name;
+        const $imgs = $(".swiper-container .swiper-slide img");
+        const len = $imgs.length;
         let chord_images = [];
         $(".swiper-container .swiper-slide img").each((index, img) => {
             if (index != 0 || index != len) {
@@ -345,19 +361,20 @@ class Spider_cc {
             search_count
         };
         typeof cb === 'function' && cb(null, data);
-        console.log(`$$结束抓取${url}$$`);
+        console.log(`**结束抓取${url}**`);
     }
 
     _analyseTitle(title) {
         return {
             author_name: title.split('>>')[2] || '',
-            song_name:title.split('>>')[3] || ''
+            song_name: title.split('>>')[3] || ''
         }
     }
 
     async _getSongInfo(name) {
         return await superagent$1
             .post('http://music.163.com/api/search/pc')
+            .timeout(this.timeout)
             .type('form')
             .send({
                 s: name,
@@ -380,7 +397,7 @@ class Spider_cc {
 
 }
 
-// a();
+// test();
 
 module.exports = {
     Spider_17,

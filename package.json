@@ -35,6 +35,7 @@
     "superagent-charset": "^1.2.0"
   },
   "devDependencies": {
-    "nodemon": "^1.8.1"
+    "nodemon": "^1.8.1",
+    "rollup": "^0.58.2"
   }
 }
