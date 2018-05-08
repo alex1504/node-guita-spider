@@ -271,14 +271,14 @@ class Spider_cc {
             const url = `http://so.ccguitar.cn/tosearch.aspx?searchtype=1&ls=n545c48d898&shows=0&pu_type=0&currentPage=${i}&searchname=${queryString}`;
             urls.push(url);
         }
-        return new Promise((resolve,reject)=>{
+        return new Promise((resolve, reject) => {
             async$1.mapLimit(urls, this.limit, (url, cb) => {
                 this._analyseSearchLinks(url, cb);
             }, (err, data) => {
-                if(err){
+                if (err) {
                     reject(err);
-                }else{
-                    data.forEach(urls=>{
+                } else {
+                    data.forEach(urls => {
                         result = result.concat(urls);
                     });
                     resolve(result);
@@ -287,7 +287,7 @@ class Spider_cc {
         })
     }
 
-    async _analyseSearchLinks(url,cb) {
+    async _analyseSearchLinks(url, cb) {
         let result = [];
         const res = await superagent$1
             .get(url)
@@ -298,7 +298,7 @@ class Spider_cc {
         if (!total) {
             typeof cb === 'function' && cb(null);
         } else {
-            $(".list_searh .pu_title .search_url a").each((index,el)=>{
+            $(".list_searh .pu_title .search_url a").each((index, el) => {
                 const href = $(el).attr('href');
                 result.push(href);
             });
@@ -312,25 +312,24 @@ class Spider_cc {
             .charset('gbk');
         const html = res.text;
         const $ = cheerio$1.load(html);
-        const title = $('#navigation p').html();
-        const song_name = await this._analyseTitle(title);
-        typeof cb === 'function' && cb(null, song_name);
-        return;
+        const title = $('#navigation p').text();
+        const {song_name, author_name} = this._analyseTitle(title);
+        /*typeof cb === 'function' && cb(null, song_name);
+        return;*/
         let song_poster;
-        let author_name;
         try {
             const songInfo = await this._getSongInfo(song_name);
             song_poster = songInfo.song_poster;
-            author_name = songInfo.author_name;
-            console.log(author_name, 1111111);
         } catch (err) {
             cb(null);
             return;
         }
         const query = song_name;
-        const imgs = Array.prototype.slice.call($('#article_contents img'));
-        const chord_images = imgs.map((el) => {
-            return $(el).attr('src');
+        let chord_images = [];
+        $(".swiper-container .swiper-slide img").each((index, img) => {
+            if (index != 0 || index != len) {
+                chord_images.push('http://www.ccguitar.cn' + $(img).attr('src'));
+            }
         });
         const view_count = 0;
         const collect_count = 0;
@@ -350,17 +349,33 @@ class Spider_cc {
     }
 
     _analyseTitle(title) {
-        const regExp = [
-            /\《([\S]+)\》/,
-            />>[\u4e00-\u9fa5]+/
-        ];
-        let match = title.match(regExp[0]);
-        if (match) {
-            return match[1] || ''
-        } else {
-            match = title.match(regExp[1]);
-            return match && match[0] || ''
+        return {
+            author_name: title.split('>>')[2] || '',
+            song_name:title.split('>>')[3] || ''
         }
+    }
+
+    async _getSongInfo(name) {
+        return await superagent$1
+            .post('http://music.163.com/api/search/pc')
+            .type('form')
+            .send({
+                s: name,
+                type: '1'
+            }).then(res => {
+                res = JSON.parse(res.text);
+                const songs = res.result && res.result.songs;
+                if (songs && songs.length) {
+                    return {
+                        song_poster: songs[0].album.picUrl,
+                        author_name: songs[0].artists[0].name
+                    }
+                } else {
+                    return {song_poster: '', author_name: ''}
+                }
+            }).catch(err => {
+                console.log(err);
+            });
     }
 
 }
