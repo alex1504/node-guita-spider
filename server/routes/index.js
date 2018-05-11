@@ -1,19 +1,22 @@
 const router = require('koa-router')()
 
 router.get('/', async (ctx, next) => {
-    await ctx.render('index', {
-        title: 'Hello Koa 2!'
-    })
-})
-
-router.get('/string', async (ctx, next) => {
-    ctx.body = 'koa2 string'
-})
-
-router.get('/json', async (ctx, next) => {
     ctx.body = {
-        title: 'koa2 json'
+        api: [
+            {
+                name: "列表获取",
+                url: "localhost:3000/guita/list?page=1&limit=5"
+            },
+            {
+                name: "top100",
+                url: "localhost:3000/guita/list/top100"
+            },
+            {
+                name: "搜索",
+                url: "localhost:3000/guita/search?q=周杰伦"
+            }
+        ]
     }
-})
+});
 
 module.exports = router

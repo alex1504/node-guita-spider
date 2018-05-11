@@ -3,7 +3,7 @@ const router = require('koa-router')();
 
 router.prefix('/guita');
 
-router.get('/', async (ctx, next) => {
+router.get('/list', async (ctx, next) => {
     let {page, limit} = ctx.query;
     page = parseInt(page);
     limit = parseInt(limit);
@@ -15,8 +15,7 @@ router.get('/', async (ctx, next) => {
     ctx.body = result;
 });
 
-
-router.get('/top100', async (ctx, next) => {
+router.get('/list/top100', async (ctx, next) => {
     let {limit} = ctx.query;
     limit = parseInt(limit);
     const spider_17 = new Spider_17({
@@ -45,8 +44,10 @@ router.get('/search', async (ctx, next) => {
 }, async (ctx, next) => {
     const {q} = ctx.query;
     const page = ctx.query.page || 1;
+    const limit = ctx.query.limit || 5;
     const spider_cc = new Spider_cc({
-        page: page
+        page,
+        limit
     });
     const result = await spider_cc.fetchSearchResult(q);
     return result;

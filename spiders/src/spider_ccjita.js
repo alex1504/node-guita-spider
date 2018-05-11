@@ -49,6 +49,12 @@ export default class {
         })
     }
 
+    /**
+     * 根据查询字符串获取搜索详情页的链接
+     * @param queryString
+     * @returns {Promise<any>}
+     * @private
+     */
     async _fetchDetailLinks(queryString) {
         queryString = queryString.replace(/'|"/ig, "");
         queryString = escape(queryString);
@@ -74,6 +80,13 @@ export default class {
         })
     }
 
+    /**
+     * 分析出搜索链接
+     * @param url
+     * @param cb
+     * @returns {Promise<void>}
+     * @private
+     */
     async _analyseSearchLinks(url, cb) {
         let result = [];
         const res = await superagent
@@ -94,6 +107,13 @@ export default class {
         }
     }
 
+    /**
+     * 获取吉他谱详情
+     * @param url
+     * @param cb
+     * @returns {Promise<void>}
+     * @private
+     */
     async _fetchDetail(url, cb) {
         let res;
         try {
@@ -146,6 +166,12 @@ export default class {
         console.log(`**结束抓取${url}**`);
     }
 
+    /**
+     * 分析吉他谱标题
+     * @param title
+     * @returns {{author_name: *|string|string, song_name: *|string|string}}
+     * @private
+     */
     _analyseTitle(title) {
         return {
             author_name: title.split('>>')[2] || '',

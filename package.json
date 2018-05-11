@@ -8,7 +8,8 @@
     "crawler:build": "rollup ./spiders/src/main.js --o ./spiders/dist/main.js --f cjs",
     "server:start": "node ./server/bin/www",
     "server:dev": "./node_modules/.bin/nodemon ./server/bin/www",
-    "server:prd": "pm2 start ./server/bin/www"
+    "server:prd": "pm2 start ./server/bin/www",
+    "docs": "docsify serve docs --port 4000"
   },
   "keywords": [
     "node",
@@ -35,6 +36,7 @@
     "superagent-charset": "^1.2.0"
   },
   "devDependencies": {
+    "docsify": "^4.6.10",
     "nodemon": "^1.8.1",
     "rollup": "^0.58.2"
   }

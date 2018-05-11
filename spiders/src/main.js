@@ -6,7 +6,7 @@ async function test(){
         page: 2,
         limit: 3
     });
-    const data = await spider_cc._fetchDetailLinks('告白气球');
+    const data = await spider_cc.fetchSearchResult('告白气球');
     console.log(data, '---')
 }
 // test();
