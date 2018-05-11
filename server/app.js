@@ -7,7 +7,8 @@ const bodyparser = require('koa-bodyparser')
 const logger = require('koa-logger')
 
 const index = require('./routes/index')
-const guita = require('./routes/guita')
+const guita17 = require('./routes/guita_17')
+const guitaCc = require('./routes/guita_cc')
 
 // error handler
 onerror(app)
@@ -34,7 +35,8 @@ app.use(async (ctx, next) => {
 
 // routes
 app.use(index.routes(), index.allowedMethods())
-app.use(guita.routes(), guita.allowedMethods())
+app.use(guita17.routes(), guita17.allowedMethods())
+app.use(guitaCc.routes(), guitaCc.allowedMethods())
 
 // error-handling
 app.on('error', (err, ctx) => {

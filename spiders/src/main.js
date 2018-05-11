@@ -4,9 +4,9 @@ import Spider_cc from './spider_ccjita';
 async function test(){
     const spider_cc = new Spider_cc({
         page: 2,
-        limit: 3
+        limit: 5
     });
-    const data = await spider_cc.fetchSearchResult('告白气球');
+    const data = await spider_cc.fetchList();
     console.log(data, '---')
 }
 // test();

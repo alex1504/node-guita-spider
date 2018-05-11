@@ -9,8 +9,8 @@
 
 - **必选参数 :** 无
 - **可选参数 :** `page`: 抓取页数 `limit`: 并发线程数
--**接口地址 :** `/guita/list`
-- **调用例子 :** [http://localhost:3000/guita/list](http://localhost:3000/guita/list)
+-**接口地址 :** `/guita_17/list`
+- **调用例子 :** [http://localhost:3000/guita_17/list](http://localhost:3000/guita_17/list)
 - **返回数据格式 :**
 
 ```javascript
@@ -36,8 +36,8 @@
 
 - **必选参数 :** 无
 - **可选参数 :** `page`: 抓取页数 `limit`: 并发线程数
-- **接口地址 :** `/guita/list/top100`
-- **调用例子 :** [http://localhost:3000/guita/list/top100](http://localhost:3000/guita/list/top100)
+- **接口地址 :** `/guita_17/list/top100`
+- **调用例子 :** [http://localhost:3000/guita_17/list/top100](http://localhost:3000/guita_17/list/top100)
 
 **返回数据格式 :**
 ```javascript
@@ -62,12 +62,39 @@
 ## 虫虫吉他网
 ---------------------------------------
 
+### 吉他谱列表页数据
+
+- **必选参数 :** 无
+- **可选参数 :** `page`: 抓取页数 `limit`: 并发线程数
+-**接口地址 :** `/guita_17/list`
+- **调用例子 :** [http://localhost:3000/guita_cc/list](http://localhost:3000/guita_cc/list)
+- **返回数据格式 :**
+
+```javascript
+[
+    {
+        "song_name": "纸短情长 烟把儿乐队原版\n                ",
+        "author_name": " 烟把儿乐队\n",
+        "song_poster": "http://p1.music.126.net/tbZaE-DjL_BkemynFlL1cQ==/109951163052534918.jpg",
+        "chord_images": [
+            "http://www.ccguitar.cn/pu/2018/4/16/213259_41950/1.gif",
+            "http://www.ccguitar.cn/pu/2018/4/16/213259_41950/2.gif",
+            "http://www.ccguitar.cn/pu/2018/4/16/213259_41950/3.gif"
+        ],
+        "query": "纸短情长 烟把儿乐队原版\n                ",
+        "view_count": 0,
+        "collect_count": 0,
+        "search_count": 0
+    }
+]
+```
+
 ### 搜索
 
 - **必选参数 :** 无
 - **可选参数 :** `q`: 查询字符串 `page`: 抓取页数 `limit`: 并发线程数
-- **接口地址 :** `/guita/search`
-- **调用例子 :** [http://localhost:3000/guita/search?q=纸短情长](http://localhost:3000/guita/search?q=纸短情长)
+- **接口地址 :** `/guita_cc/search`
+- **调用例子 :** [http://localhost:3000/guita_cc/search?q=纸短情长](http://localhost:3000/guita_cc/search?q=纸短情长)
 
 **返回数据格式 :**
 ```javascript

@@ -50,6 +50,57 @@ export default class {
     }
 
     /**
+     * 获取列表url的所有详情页数据
+     * @param url
+     * @param page
+     * @returns {Promise<void>}
+     * @private
+     */
+    async fetchList() {
+        const url = 'http://www.ccguitar.cn/pu_list.htm';
+        const detailPageUrls = await this._analyseList(url, this.page);
+        return new Promise((resolve, reject) => {
+            async.mapLimit(detailPageUrls, this.limit, (url, cb) => {
+                console.log(`**开始抓取${url}**`);
+                this._fetchDetail(url, cb);
+            }, (err, data) => {
+                if (err) {
+                    reject(err)
+                } else {
+                    resolve(data)
+                }
+            });
+        })
+    }
+
+    /**
+     * 分析单页列表页从而获取详情页urls
+     * @param url 列表页url
+     * @param page
+     * @returns {Promise<Array>}
+     * @private
+     */
+    async _analyseList(url, page) {
+        let result = [];
+        let detailPageUrl;
+        for (let i = 1; i <= page; i++) {
+            detailPageUrl = url.replace('.htm', '') + '_0_0_0_0_0_' + i + '.htm';
+            const res = await
+                superagent
+                    .get(url)
+                    .charset('gbk');
+            const html = res.text;
+            const $ = cheerio.load(html);
+            $('.imagewall_container.zh_oh .pu_tr .puname a').each((index, el) => {
+                let href = $(el).attr('href');
+                href = `http://www.ccguitar.cn${href}`;
+                result.push(href);
+            });
+        }
+        return result;
+    }
+
+    /**
      * 根据查询字符串获取搜索详情页的链接
      * @param queryString
      * @returns {Promise<any>}
