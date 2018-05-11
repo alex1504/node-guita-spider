@@ -115,3 +115,34 @@
     }
 ]
 ```
+
+
+## 吉他社
+---------------------------------------
+
+### 列表页数据
+
+#### 热门列表
+- **必选参数 :** 无
+- **可选参数 :** `page`: 抓取页数 `limit`: 并发线程数
+-**接口地址 :** `/guita_jts/list/hot`
+- **调用例子 :** [http://localhost:3000/guita_jts/list/hot](http://localhost:3000/guita_jts/list/hot)
+- **返回数据格式 :**
+
+```javascript
+[
+    {
+        "song_name": "莫文蔚《慢慢喜欢你》原版 酷音小伟吉他教学\n                ",
+        "author_name": " 莫文蔚\n",
+        "song_poster": "http://p1.music.126.net/XqNiBR_6gPXXq58vW2dD8g==/109951163169448520.jpg",
+        "chord_images": [
+            "http://www.ccguitar.cn/pu/2018/5/10/224616_41891/1.gif",
+            "http://www.ccguitar.cn/pu/2018/5/10/224616_41891/2.gif"
+        ],
+        "query": "莫文蔚《慢慢喜欢你》原版 酷音小伟吉他教学\n                ",
+        "view_count": 0,
+        "collect_count": 0,
+        "search_count": 0
+    }
+]
+```
