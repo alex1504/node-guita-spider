@@ -160,6 +160,10 @@ export default class {
         })
     }
 
+    /**
+     * 获取top100列表数据
+     * @returns {Promise<any>}
+     */
     async fetchTop100List() {
         const url = 'https://www.17jita.com/tab/topic/top100.html';
         const detailPageUrls = await this._analyseTop100List(url);
