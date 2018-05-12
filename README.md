@@ -1,233 +1,76 @@
-# 聚合吉他谱API
----------------------------------------
-> - 基于Node+Koa网络爬虫吉他谱接口，集合吉他社、17吉他网、虫虫吉他谱，更多网站等待更新。
-> - 本API仅仅只是学习研究使用,请勿将以下接口用来商业推广以及其他获利用途，如有版权问题请告知删除
+## 聚合吉他谱API
 
-## 代理服务器
----------------------------------------
-获取爬虫IP池，防止IP被禁止访问。下面代理服务器列表抓取自[西刺代理](http://www.xicidaili.com/)。
+- 基于Node+Koa网络爬虫吉他谱接口，集合[吉他社](http://www.jitashe.org/)、[17吉他网](https://www.17jita.com/)、[虫虫吉他](http://www.ccguitar.cn/)，更多网站等待更新。
+- 本API仅仅只是学习研究使用,请勿将以下接口用来商业推广以及其他获利用途，如有版权问题请告知删除
 
-### 代理服务器列表
+## 接口文档
 
-- **必选参数 :** 无
-- **可选参数 :** `page`: 抓取页数
-- **接口地址 :** `/proxy/list?page=5`
-- **调用例子 :** [http://localhost:3000/proxy/list?page=5](http://localhost:3000/guita_17/list?page=5)
-- **返回数据格式 :**
+[http://www.huzerui.com/node-guita-spider/docs](http://www.huzerui.com/node-guita-spider/docs)
 
-```javascript
-[
-    {
-        "song_name": "纸短情长",
-        "author_name": "花粥",
-        "song_poster": "http://p1.music.126.net/PXE9MfYCgnjHz1vkrpUywQ==/109951163290871736.jpg",
-        "chord_images": [
-            "http://data.17jita.com/attachment/portal/201805/05/131355zh5cb2sgsg2xof8o.png",
-            "http://data.17jita.com/attachment/portal/201805/05/131356il4hryh33p34xpk9.png",
-            "http://data.17jita.com/attachment/portal/201805/05/131358u2s24fyoip21z12o.png"
-        ],
-        "query": "纸短情长",
-        "view_count": 0,
-        "collect_count": 0,
-        "search_count": 0
-    }
-]
+## 主要依赖
+
+- [rollup](https://rollupjs.org/guide/en): JavaScript 模块打包器,可以将小块代码编译成大块复杂的代码
+- [Koa](https://koajs.com/): 新一代web框架
+- [async](https://github.com/caolan/async): 并发控制
+- [cheerio](https://cheerio.js.org/): Nodejs页面解析模块
+- [docsify](https://docsify.js.org/): 快速生成文档工具
+
+## 项目目录说明
+```
+.
+|-- assets                           // 静态资源目录
+|-- docs                             // docsify文档目录
+|   |-- index.html                   // docsify入口
+|   |-- README.md                    // 文档markdown
+|-- servers                          // Koa服务端目录
+|-- spiders                          // 爬虫脚本开发目录
+|   |-- data                         // 本地数据文件
+|       |-- proxy.json               // 爬虫代理ip地址json数据
+|   |-- dist                         // 爬虫脚本输出目录
+|       |-- main.js                  // 爬虫脚本入口输出
+|   |-- src                          // 爬虫脚本逻辑
+|       |-- main.js                  // 入口
+|       |-- spider_17jita.js         // 17吉他网站爬虫
+|       |-- spider_ccjita            // 虫虫吉他网站爬虫
+|       |-- spider_jitashe.js        // 吉他社网站爬虫
+|       |-- spider_proxy.js          // 代理IP爬虫
+|       |-- test.js                  // 测试函数
+|       |-- userAgent.js             // userAgent生成
+|-- .gitignore                       // Git提交忽略文件规则
+|-- README.md                        // 项目说明
+|-- package.json                     // 配置项目相关信息
+.
 ```
 
-## 吉他社
----------------------------------------
+## 开发指南
 
-### 列表页数据
+### 安装
 
-#### 热门列表
-- **必选参数 :** 无
-- **可选参数 :** `start`: 起始页 `page`: 抓取页数 `limit`: 并发线程数
-- **接口地址 :** `/guita_jts/list/hot`
-- **调用例子 :** [http://localhost:3000/guita_jts/list/hot](http://localhost:3000/guita_jts/list/hot)
-- **返回数据格式 :**
-
-```javascript
-[
-    {
-        "song_name": "莫文蔚《慢慢喜欢你》原版 酷音小伟吉他教学\n                ",
-        "author_name": " 莫文蔚\n",
-        "song_poster": "http://p1.music.126.net/XqNiBR_6gPXXq58vW2dD8g==/109951163169448520.jpg",
-        "chord_images": [
-            "http://www.ccguitar.cn/pu/2018/5/10/224616_41891/1.gif",
-            "http://www.ccguitar.cn/pu/2018/5/10/224616_41891/2.gif"
-        ],
-        "query": "莫文蔚《慢慢喜欢你》原版 酷音小伟吉他教学\n                ",
-        "view_count": 0,
-        "collect_count": 0,
-        "search_count": 0
-    }
-]
+```
+git clone https://github.com/alex1504/node-guita-spider.git
+cd node-guita-spider
+npm i
+npm i docsify -g
 ```
 
+### 开发
 
-#### 最新列表
-- **必选参数 :** 无
-- **可选参数 :** `start`: 起始页 `page`: 抓取页数 `limit`: 并发线程数
-- **接口地址 :** `/guita_jts/list/new`
-- **调用例子 :** [http://localhost:3000/guita_jts/list/new](http://localhost:3000/guita_jts/list/new)
-- **返回数据格式 :**
-
-```javascript
-[
-    {
-        "song_name": "莫文蔚《慢慢喜欢你》原版 酷音小伟吉他教学\n                ",
-        "author_name": " 莫文蔚\n",
-        "song_poster": "http://p1.music.126.net/XqNiBR_6gPXXq58vW2dD8g==/109951163169448520.jpg",
-        "chord_images": [
-            "http://www.ccguitar.cn/pu/2018/5/10/224616_41891/1.gif",
-            "http://www.ccguitar.cn/pu/2018/5/10/224616_41891/2.gif"
-        ],
-        "query": "莫文蔚《慢慢喜欢你》原版 酷音小伟吉他教学\n                ",
-        "view_count": 0,
-        "collect_count": 0,
-        "search_count": 0
-    }
-]
+查看`package.json`有如下命令：
+```
+// 爬虫脚本开发
+"crawler:dev": "rollup ./spiders/src/main.js --o ./spiders/dist/main.js --f cjs --w",
+// 爬虫脚本打包（爬虫开发命令会自动监听并打包，此命令可忽略）
+"crawler:build": "rollup ./spiders/src/main.js --o ./spiders/dist/main.js --f cjs",
+// 开启Koa服务器，端口3000
+"server:start": "node ./server/bin/www",
+// Koa服务端开发，使用nodemon自动监听并重启
+"server:dev": "./node_modules/.bin/nodemon ./server/bin/www",
+// 开启docsify服务器，端口4000
+"docs": "docsify serve docs --port 4000"
 ```
 
-
-### 搜索
-
-- **必选参数 :** 无
-- **可选参数 :** `q`: 查询字符串 `page`: 抓取页数 `limit`: 并发线程数
-- **接口地址 :** `/guita_jitashe/search`
-- **调用例子 :** [http://localhost:3000/guita_jts/search?q=纸短情长](http://localhost:3000/guita_jts/search?q=纸短情长)
-
-**返回数据格式 :**
-```javascript
-[
-    {
-        "song_name": "纸短情长 烟把儿乐队原版\n                ",
-        "author_name": " 烟把儿乐队\n",
-        "song_poster": "http://p1.music.126.net/tbZaE-DjL_BkemynFlL1cQ==/109951163052534918.jpg",
-        "chord_images": [
-            "http://www.ccguitar.cn/pu/2018/4/16/213259_41950/1.gif",
-            "http://www.ccguitar.cn/pu/2018/4/16/213259_41950/2.gif",
-            "http://www.ccguitar.cn/pu/2018/4/16/213259_41950/3.gif"
-        ],
-        "query": "纸短情长 烟把儿乐队原版\n                ",
-        "view_count": 0,
-        "collect_count": 0,
-        "search_count": 0
-    }
-]
-```
-
-## 17吉他网
----------------------------------------
-### 吉他谱列表页数据
-
-- **必选参数 :** 无
-- **可选参数 :** `start`: 起始页 `page`: 抓取页数 `limit`: 并发线程数
-- **接口地址 :** `/guita_17/list`
-- **调用例子 :** [http://localhost:3000/guita_17/list](http://localhost:3000/guita_17/list)
-- **返回数据格式 :**
-
-```javascript
-[
-    {
-        "song_name": "纸短情长",
-        "author_name": "花粥",
-        "song_poster": "http://p1.music.126.net/PXE9MfYCgnjHz1vkrpUywQ==/109951163290871736.jpg",
-        "chord_images": [
-            "http://data.17jita.com/attachment/portal/201805/05/131355zh5cb2sgsg2xof8o.png",
-            "http://data.17jita.com/attachment/portal/201805/05/131356il4hryh33p34xpk9.png",
-            "http://data.17jita.com/attachment/portal/201805/05/131358u2s24fyoip21z12o.png"
-        ],
-        "query": "纸短情长",
-        "view_count": 0,
-        "collect_count": 0,
-        "search_count": 0
-    }
-]
-```
-
-### top100列表页数据
-
-- **必选参数 :** 无
-- **可选参数 :** 无
-- **接口地址 :** `/guita_17/list/top100`
-- **调用例子 :** [http://localhost:3000/guita_17/list/top100](http://localhost:3000/guita_17/list/top100)
-
-**返回数据格式 :**
-```javascript
-[
-    {
-        "song_name": "纸短情长",
-        "author_name": "花粥",
-        "song_poster": "http://p1.music.126.net/PXE9MfYCgnjHz1vkrpUywQ==/109951163290871736.jpg",
-        "chord_images": [
-            "http://data.17jita.com/attachment/portal/201805/05/131355zh5cb2sgsg2xof8o.png",
-            "http://data.17jita.com/attachment/portal/201805/05/131356il4hryh33p34xpk9.png",
-            "http://data.17jita.com/attachment/portal/201805/05/131358u2s24fyoip21z12o.png"
-        ],
-        "query": "纸短情长",
-        "view_count": 0,
-        "collect_count": 0,
-        "search_count": 0
-    }
-]
-```
-
-## 虫虫吉他网
----------------------------------------
-
-### 吉他谱列表页数据
-
-- **必选参数 :** 无
-- **可选参数 :** `start`: 起始页 `page`: 抓取页数 `limit`: 并发线程数
--**接口地址 :** `/guita_17/list`
-- **调用例子 :** [http://localhost:3000/guita_cc/list](http://localhost:3000/guita_cc/list)
-- **返回数据格式 :**
-
-```javascript
-[
-    {
-        "song_name": "纸短情长 烟把儿乐队原版\n                ",
-        "author_name": " 烟把儿乐队\n",
-        "song_poster": "http://p1.music.126.net/tbZaE-DjL_BkemynFlL1cQ==/109951163052534918.jpg",
-        "chord_images": [
-            "http://www.ccguitar.cn/pu/2018/4/16/213259_41950/1.gif",
-            "http://www.ccguitar.cn/pu/2018/4/16/213259_41950/2.gif",
-            "http://www.ccguitar.cn/pu/2018/4/16/213259_41950/3.gif"
-        ],
-        "query": "纸短情长 烟把儿乐队原版\n                ",
-        "view_count": 0,
-        "collect_count": 0,
-        "search_count": 0
-    }
-]
-```
-
-### 搜索
-
-- **必选参数 :** 无
-- **可选参数 :** `q`: 查询字符串 `page`: 抓取页数 `limit`: 并发线程数
-- **接口地址 :** `/guita_cc/search`
-- **调用例子 :** [http://localhost:3000/guita_cc/search?q=纸短情长](http://localhost:3000/guita_cc/search?q=纸短情长)
-
-**返回数据格式 :**
-```javascript
-[
-    {
-        "song_name": "纸短情长 烟把儿乐队原版\n                ",
-        "author_name": " 烟把儿乐队\n",
-        "song_poster": "http://p1.music.126.net/tbZaE-DjL_BkemynFlL1cQ==/109951163052534918.jpg",
-        "chord_images": [
-            "http://www.ccguitar.cn/pu/2018/4/16/213259_41950/1.gif",
-            "http://www.ccguitar.cn/pu/2018/4/16/213259_41950/2.gif",
-            "http://www.ccguitar.cn/pu/2018/4/16/213259_41950/3.gif"
-        ],
-        "query": "纸短情长 烟把儿乐队原版\n                ",
-        "view_count": 0,
-        "collect_count": 0,
-        "search_count": 0
-    }
-]
-```
+指南：
+- 开发爬虫脚本： `npm run crawler:dev`，修改`/spiders/src/`下的文件，`/spider/dist/main.js`会自动更新
+- 开发服务端： `npm run server:dev`，修改`/server/`下的文件，Koa会自动重载
+- 开启docsify服务器： `npm run docs`，浏览器打开`http://locaohost:4000`端口查看接口文档
 
