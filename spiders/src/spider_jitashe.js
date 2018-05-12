@@ -1,14 +1,20 @@
+import userAgent from "./userAgent";
+import Spider_proxy from "./spider_proxy";
+
 const superagent = require('superagent');
+const superagentProxy = require('superagent-proxy');
 const charset = require('superagent-charset');
 const cheerio = require('cheerio');
 const async = require('async');
+const proxyServers = new Spider_proxy().getServers();
 
+superagentProxy(superagent);
 charset(superagent);
-
 
 export default class {
     constructor(options) {
         const defaultOpts = {
+            start: 1,
             page: 1,
             limit: 5,
             timeout: 4000
@@ -21,9 +27,10 @@ export default class {
                 }
             }
         }
-        this.page = opts.page;
-        this.limit = opts.limit;
-        this.timeout = opts.timeout;
+        this.start = parseInt(opts.start);
+        this.page = parseInt(opts.page);
+        this.limit = parseInt(opts.limit);
+        this.timeout = parseInt(opts.timeout);
     }
 
     init() {
@@ -66,6 +73,9 @@ export default class {
                 if (err) {
                     reject(err)
                 } else {
+                    data = data.filter(song => {
+                        return !!song
+                    });
                     resolve(data)
                 }
             });
@@ -82,6 +92,7 @@ export default class {
     async fetchHotList() {
         const url = 'http://www.jitashe.org/guide/hottab';
         const detailPageUrls = await this._analyseList(url, this.page);
+        // return;
         return new Promise((resolve, reject) => {
             async.mapLimit(detailPageUrls, this.limit, (url, cb) => {
                 console.log(`**开始抓取${url}**`);
@@ -90,6 +101,9 @@ export default class {
                 if (err) {
                     reject(err)
                 } else {
+                    data = data.filter(song => {
+                        return !!song
+                    });
                     resolve(data)
                 }
             });
@@ -105,12 +119,13 @@ export default class {
      */
     async _analyseList(url, page) {
         let result = [];
-        let detailPageUrl;
-        for (let i = 1; i <= page; i++) {
-            detailPageUrl = `url/${i}/`;
+        let listpageUrl;
+        for (let i = this.start; i < this.start + page; i++) {
+            listpageUrl = `${url}/${i}/`;
             const res = await
                 superagent
-                    .get(url);
+                    .get(listpageUrl)
+                    .set({'User-Agent': userAgent.getRandom()});
             const html = res.text;
             const $ = cheerio.load(html);
             $('.tab-list .tab-item').each((index, el) => {
@@ -135,7 +150,7 @@ export default class {
         queryString = encodeURIComponent(queryString)
         let urls = [];
         let result = [];
-        for (let i = 1; i <= this.page; i++) {
+        for (let i = this.start; i < this.start + this.page; i++) {
             const url = `http://www.jitashe.org/search/tab/${queryString}/${i}/`;
             urls.push(url)
         }
@@ -166,6 +181,7 @@ export default class {
         let result = [];
         const res = await superagent
             .get(url)
+            .set({'User-Agent': userAgent.getRandom()})
             .timeout(this.timeout)
         const html = res.text;
         const $ = cheerio.load(html);
@@ -197,6 +213,7 @@ export default class {
         try {
             res = await superagent
                 .get(url)
+                .set({'User-Agent': userAgent.getRandom()})
                 .timeout(this.timeout)
         } catch (err) {
             console.log(err);
@@ -217,24 +234,24 @@ export default class {
             typeof cb === 'function' && cb(null);
             return;
         }
-        const query = song_name;
+        const query = song_name.replace(/\([\s\S]*\)?/, '');
         const $imgs = $("#postlist .imgtab a img");
         let chord_images = [];
         $imgs.each((index, img) => {
             chord_images.push($(img).attr('src'));
         });
-        const view_count = 0;
-        const collect_count = 0;
-        const search_count = 0;
+        const view_count = [parseInt(Math.random() * 100)].toString();
+        const collect_count = "0";
+        const search_count = [parseInt(Math.random() * 100)].toString();
         const data = {
             song_name,
             author_name,
             song_poster,
-            chord_images,
             query,
             view_count,
             collect_count,
-            search_count
+            search_count,
+            chord_images: JSON.stringify(chord_images)
         };
         typeof cb === 'function' && cb(null, data);
         console.log(`**结束抓取${url}**`);
@@ -254,14 +271,14 @@ export default class {
     }
 
     async _getSongInfo(name) {
+        const proxyServer = proxyServers[Math.floor(proxyServers.length * Math.random())];
         return await superagent
             .post('http://music.163.com/api/search/pc')
+            // .proxy(proxyServer)
+            .set({'User-Agent': userAgent.getRandom()})
             .timeout(this.timeout)
             .type('form')
-            .send({
-                s: name,
-                type: '1'
-            }).then(res => {
+            .send({s: name, type: 1}).then(res => {
                 res = JSON.parse(res.text);
                 const songs = res.result && res.result.songs;
                 if (songs && songs.length) {
@@ -274,6 +291,7 @@ export default class {
                 }
             }).catch(err => {
                 console.log(err);
+                return {song_poster: '', author_name: ''}
             });
     }
 

@@ -7,6 +7,7 @@ const bodyparser = require('koa-bodyparser')
 const logger = require('koa-logger')
 
 const index = require('./routes/index')
+const proxy = require('./routes/proxy')
 const guita17 = require('./routes/guita_17')
 const guitaCc = require('./routes/guita_cc')
 const guitaJitashe = require('./routes/guita_jitashe')
@@ -39,6 +40,8 @@ app.use(index.routes(), index.allowedMethods())
 app.use(guita17.routes(), guita17.allowedMethods())
 app.use(guitaCc.routes(), guitaCc.allowedMethods())
 app.use(guitaJitashe.routes(), guitaJitashe.allowedMethods())
+app.use(proxy.routes(), proxy.allowedMethods())
+
 
 
 // error-handling

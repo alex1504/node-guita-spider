@@ -1,7 +1,11 @@
+import userAgent from "./userAgent";
+import Spider_proxy from "./spider_proxy";
+
 const superagent = require('superagent');
 const charset = require('superagent-charset');
 const cheerio = require('cheerio');
 const async = require('async');
+const proxyServers = new Spider_proxy().getServers();
 
 charset(superagent);
 
@@ -9,6 +13,7 @@ charset(superagent);
 export default class {
     constructor(options) {
         const defaultOpts = {
+            start: 1,
             page: 1,
             limit: 5,
             timeout: 4000
@@ -21,9 +26,10 @@ export default class {
                 }
             }
         }
-        this.page = opts.page;
-        this.limit = opts.limit;
-        this.timeout = opts.timeout;
+        this.start = parseInt(opts.start);
+        this.page = parseInt(opts.page);
+        this.limit = parseInt(opts.limit);
+        this.timeout = parseInt(opts.timeout);
     }
 
     init() {
@@ -82,12 +88,13 @@ export default class {
      */
     async _analyseList(url, page) {
         let result = [];
-        let detailPageUrl;
+        let listpageUrl;
         for (let i = 1; i <= page; i++) {
-            detailPageUrl = url.replace('.htm', '') + '_0_0_0_0_0_' + i + '.htm';
+            listpageUrl = url.replace('.htm', '') + '_0_0_0_0_0_' + i + '.htm';
             const res = await
                 superagent
-                    .get(url)
+                    .get(listpageUrl)
+                    .set({'User-Agent': userAgent.getRandom()})
                     .charset('gbk');
             const html = res.text;
             const $ = cheerio.load(html);
@@ -142,6 +149,7 @@ export default class {
         let result = [];
         const res = await superagent
             .get(url)
+            .set({'User-Agent': userAgent.getRandom()})
             .timeout(this.timeout)
             .charset('gbk');
         const html = res.text;
@@ -170,6 +178,7 @@ export default class {
         try {
             res = await superagent
                 .get(url)
+                .set({'User-Agent': userAgent.getRandom()})
                 .timeout(this.timeout)
                 .charset('gbk');
         } catch (err) {
@@ -207,11 +216,11 @@ export default class {
             song_name,
             author_name,
             song_poster,
-            chord_images,
             query,
             view_count,
             collect_count,
-            search_count
+            search_count,
+            chord_images: JSON.stringify(chord_images)
         };
         typeof cb === 'function' && cb(null, data);
         console.log(`**结束抓取${url}**`);
@@ -231,8 +240,11 @@ export default class {
     }
 
     async _getSongInfo(name) {
+        const proxyServer = proxyServers[Math.floor(proxyServers.length * Math.random())];
         return await superagent
             .post('http://music.163.com/api/search/pc')
+            // .proxy(proxyServer)
+            .set({'User-Agent': userAgent.getRandom()})
             .timeout(this.timeout)
             .type('form')
             .send({
@@ -251,6 +263,7 @@ export default class {
                 }
             }).catch(err => {
                 console.log(err);
+                return {song_poster: '', author_name: ''}
             });
     }
 

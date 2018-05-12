@@ -19,6 +19,8 @@
   "author": "jerry",
   "license": "MIT",
   "dependencies": {
+    "async": "^2.6.0",
+    "cheerio": "^1.0.0-rc.2",
     "debug": "^2.6.3",
     "ejs": "~2.3.3",
     "koa": "^2.2.0",
@@ -30,13 +32,11 @@
     "koa-router": "^7.1.1",
     "koa-static": "^3.0.0",
     "koa-views": "^5.2.1",
-    "async": "^2.6.0",
-    "cheerio": "^1.0.0-rc.2",
     "superagent": "^3.8.3",
-    "superagent-charset": "^1.2.0"
+    "superagent-charset": "^1.2.0",
+    "superagent-proxy": "^1.0.3"
   },
   "devDependencies": {
-    "docsify": "^4.6.10",
     "nodemon": "^1.8.1",
     "rollup": "^0.58.2"
   }
