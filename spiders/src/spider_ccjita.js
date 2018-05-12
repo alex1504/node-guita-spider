@@ -89,7 +89,7 @@ export default class {
     async _analyseList(url, page) {
         let result = [];
         let listpageUrl;
-        for (let i = 1; i <= page; i++) {
+        for (let i = this.start; i <= this.start + this.page; i++) {
             listpageUrl = url.replace('.htm', '') + '_0_0_0_0_0_' + i + '.htm';
             const res = await
                 superagent
@@ -118,7 +118,7 @@ export default class {
         queryString = escape(queryString);
         let urls = [];
         let result = [];
-        for (let i = 1; i <= this.page; i++) {
+        for (let i = this.start; i < this.start + this.page; i++) {
             const url = `http://so.ccguitar.cn/tosearch.aspx?searchtype=1&ls=n545c48d898&shows=0&pu_type=0&currentPage=${i}&searchname=${queryString}`;
             urls.push(url)
         }

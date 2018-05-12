@@ -80,7 +80,7 @@ export default class {
             chord_images: JSON.stringify(chord_images)
         };
         typeof cb === 'function' && cb(null, data);
-        console.log(`$$结束抓取${url}$$`);
+        console.log(`**结束抓取${url}**`);
     }
 
     /**
@@ -191,7 +191,7 @@ export default class {
     async _analyseList(url, page) {
         let result = [];
         let listpageUrl;
-        for (let i = 1; i <= page; i++) {
+        for (let i = this.start; i < this.start + page; i++) {
             listpageUrl = `${url}?page=${i}`;
             const res = await
                 superagent

@@ -4,10 +4,12 @@ const router = require('koa-router')();
 router.prefix('/guita_cc');
 
 router.get('/list', async (ctx, next) => {
-    let {page, limit} = ctx.query;
+    let {start, page, limit} = ctx.query;
     page = parseInt(page);
     limit = parseInt(limit);
+    start = parseInt(start);
     const spider_cc = new Spider_cc({
+        start: start || 1,
         page: page || 1,
         limit: limit || 5
     });

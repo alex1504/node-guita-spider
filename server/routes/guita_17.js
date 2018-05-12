@@ -4,10 +4,12 @@ const router = require('koa-router')();
 router.prefix('/guita_17');
 
 router.get('/list', async (ctx, next) => {
-    let {page, limit} = ctx.query;
+    let {page, limit, start} = ctx.query;
     page = parseInt(page);
     limit = parseInt(limit);
+    start = parseInt(start);
     const spider_17 = new Spider_17({
+        start: start || 1,
         page: page || 1,
         limit: limit || 5
     });
