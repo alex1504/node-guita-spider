@@ -212,6 +212,7 @@ class Spider_17 {
         try {
             res = await superagent$1
                 .get(url)
+                .timeout(2000)
                 .set({'User-Agent': userAgent.getRandom()})
                 .charset('gbk');
         } catch (err) {
@@ -233,6 +234,7 @@ class Spider_17 {
             cb(null);
             return;
         }
+        console.log('ok');
         const query = song_name;
         const imgs = Array.prototype.slice.call($('#article_contents img'));
         let chord_images = imgs.map((el) => {
@@ -251,8 +253,10 @@ class Spider_17 {
             search_count,
             chord_images: JSON.stringify(chord_images)
         };
-        if(data.song_name){
+        if (data.song_name) {
             typeof cb === 'function' && cb(null, data);
+        }else{
+            cb(null);
         }
         console.log(`**结束抓取${url}**`);
     }
@@ -264,28 +268,32 @@ class Spider_17 {
      * @private
      */
     async _getSongInfo(name) {
-        return await superagent$1
-            .post('http://music.163.com/api/search/pc')
-            .set({'User-Agent': userAgent.getRandom()})
-            .type('form')
-            .send({
-                s: name,
-                type: '1'
-            }).then(res => {
-                res = JSON.parse(res.text);
-                const songs = res.result && res.result.songs;
-                if (songs && songs.length) {
-                    return {
-                        song_poster: songs[0].album.picUrl,
-                        author_name: songs[0].artists[0].name
+        try {
+            return await superagent$1
+                .post('http://music.163.com/api/search/pc')
+                .timeout(2000)
+                .set({'User-Agent': userAgent.getRandom()})
+                .type('form')
+                .send({
+                    s: name,
+                    type: '1'
+                }).then(res => {
+                    res = JSON.parse(res.text);
+                    const songs = res.result && res.result.songs;
+                    if (songs && songs.length) {
+                        return {
+                            song_poster: songs[0].album.picUrl,
+                            author_name: songs[0].artists[0].name
+                        }
+                    } else {
+                        return {song_poster: '', author_name: ''}
                     }
-                } else {
-                    return {song_poster: '', author_name: ''}
-                }
-            }).catch(err => {
-                console.log(err);
-                return {song_poster: '', author_name: ''}
-            });
+                })
+        } catch (err) {
+            console.log(err);
+            return {song_poster: '', author_name: ''}
+        }
+
     }
 
     /**
@@ -366,11 +374,17 @@ class Spider_17 {
         let listpageUrl;
         for (let i = this.start; i < this.start + page; i++) {
             listpageUrl = `${url}?page=${i}`;
-            const res = await
-                superagent$1
-                    .get(listpageUrl)
-                    .set({'User-Agent': userAgent.getRandom()})
-                    .charset('gbk');
+            let res;
+            try {
+                res = await
+                    superagent$1
+                        .get(listpageUrl)
+                        .set({'User-Agent': userAgent.getRandom()})
+                        .charset('gbk');
+            } catch (err) {
+                return []
+            }
+
             const html = res.text;
             const $ = cheerio$1.load(html);
             $('.bbs.cl dt a').each((index, el) => {
