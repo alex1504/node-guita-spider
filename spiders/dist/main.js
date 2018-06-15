@@ -172,7 +172,6 @@ const superagent$1 = require('superagent');
 const charset = require('superagent-charset');
 const cheerio$1 = require('cheerio');
 const async = require('async');
-const proxyServers = new Spider_proxy().getServers();
 
 charset(superagent$1);
 
@@ -186,7 +185,7 @@ class Spider_17 {
             start: 1,
             page: 1,
             limit: 5,
-            timeout: 4000
+            timeout: 3000
         };
         let opts = defaultOpts;
         if (options) {
@@ -209,10 +208,16 @@ class Spider_17 {
      * @private
      */
     async _fetchDetail(url, cb) {
-        const res = await superagent$1
-            .get(url)
-            .set({'User-Agent': userAgent.getRandom()})
-            .charset('gbk');
+        let res;
+        try {
+            res = await superagent$1
+                .get(url)
+                .set({'User-Agent': userAgent.getRandom()})
+                .charset('gbk');
+        } catch (err) {
+            cb(null);
+            return;
+        }
         const html = res.text;
         const $ = cheerio$1.load(html);
         const title = $('h1.ph').text();
@@ -233,9 +238,9 @@ class Spider_17 {
         let chord_images = imgs.map((el) => {
             return $(el).attr('src');
         });
-        const view_count = 0;
-        const collect_count = 0;
-        const search_count = 0;
+        const view_count = "0";
+        const collect_count = "0";
+        const search_count = "0";
         const data = {
             song_name,
             author_name,
@@ -246,7 +251,9 @@ class Spider_17 {
             search_count,
             chord_images: JSON.stringify(chord_images)
         };
-        typeof cb === 'function' && cb(null, data);
+        if(data.song_name){
+            typeof cb === 'function' && cb(null, data);
+        }
         console.log(`**结束抓取${url}**`);
     }
 
@@ -257,10 +264,8 @@ class Spider_17 {
      * @private
      */
     async _getSongInfo(name) {
-        const proxyServer = proxyServers[Math.floor(proxyServers.length * Math.random())];
         return await superagent$1
             .post('http://music.163.com/api/search/pc')
-            // .proxy(proxyServer)
             .set({'User-Agent': userAgent.getRandom()})
             .type('form')
             .send({
@@ -313,6 +318,7 @@ class Spider_17 {
     async fetchList() {
         const url = 'https://www.17jita.com/tab/index.php';
         const detailPageUrls = await this._analyseList(url, this.page);
+        console.log(detailPageUrls);
         return new Promise((resolve, reject) => {
             async.mapLimit(detailPageUrls, this.limit, (url, cb) => {
                 console.log(`**开始抓取${url}**`);
@@ -367,7 +373,7 @@ class Spider_17 {
                     .charset('gbk');
             const html = res.text;
             const $ = cheerio$1.load(html);
-            $('.bbs.cl .xs3 a').each((index, el) => {
+            $('.bbs.cl dt a').each((index, el) => {
                 const id = $(el).attr('href').match(/\d+/);
                 const href = `https://www.17jita.com/tab/whole_${id}.html`;
                 result.push(href);
@@ -405,7 +411,7 @@ const superagent$2 = require('superagent');
 const charset$1 = require('superagent-charset');
 const cheerio$2 = require('cheerio');
 const async$1 = require('async');
-const proxyServers$1 = new Spider_proxy().getServers();
+const proxyServers = new Spider_proxy().getServers();
 
 charset$1(superagent$2);
 
@@ -609,9 +615,9 @@ class Spider_cc {
                 chord_images.push('http://www.ccguitar.cn' + $(img).attr('src'));
             }
         });
-        const view_count = 0;
-        const collect_count = 0;
-        const search_count = 0;
+        const view_count = "0";
+        const collect_count = "0";
+        const search_count = "0";
         const data = {
             song_name,
             author_name,
@@ -640,7 +646,7 @@ class Spider_cc {
     }
 
     async _getSongInfo(name) {
-        const proxyServer = proxyServers$1[Math.floor(proxyServers$1.length * Math.random())];
+        const proxyServer = proxyServers[Math.floor(proxyServers.length * Math.random())];
         return await superagent$2
             .post('http://music.163.com/api/search/pc')
             // .proxy(proxyServer)
@@ -674,7 +680,7 @@ const superagentProxy$1 = require('superagent-proxy');
 const charset$2 = require('superagent-charset');
 const cheerio$3 = require('cheerio');
 const async$2 = require('async');
-const proxyServers$2 = new Spider_proxy().getServers();
+const proxyServers$1 = new Spider_proxy().getServers();
 
 superagentProxy$1(superagent$3);
 charset$2(superagent$3);
@@ -908,9 +914,9 @@ class Spider_jitashe {
         $imgs.each((index, img) => {
             chord_images.push($(img).attr('src'));
         });
-        const view_count = [parseInt(Math.random() * 100)].toString();
+        const view_count = "0";
         const collect_count = "0";
-        const search_count = [parseInt(Math.random() * 100)].toString();
+        const search_count = "0";
         const data = {
             song_name,
             author_name,
@@ -939,7 +945,7 @@ class Spider_jitashe {
     }
 
     async _getSongInfo(name) {
-        const proxyServer = proxyServers$2[Math.floor(proxyServers$2.length * Math.random())];
+        const proxyServer = proxyServers$1[Math.floor(proxyServers$1.length * Math.random())];
         return await superagent$3
             .post('http://music.163.com/api/search/pc')
             // .proxy(proxyServer)

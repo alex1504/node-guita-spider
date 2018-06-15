@@ -5,7 +5,6 @@ const superagent = require('superagent');
 const charset = require('superagent-charset');
 const cheerio = require('cheerio');
 const async = require('async');
-const proxyServers = new Spider_proxy().getServers();
 
 charset(superagent);
 
@@ -19,7 +18,7 @@ export default class {
             start: 1,
             page: 1,
             limit: 5,
-            timeout: 4000
+            timeout: 3000
         };
         let opts = defaultOpts;
         if (options) {
@@ -42,10 +41,16 @@ export default class {
      * @private
      */
     async _fetchDetail(url, cb) {
-        const res = await superagent
-            .get(url)
-            .set({'User-Agent': userAgent.getRandom()})
-            .charset('gbk');
+        let res;
+        try {
+            res = await superagent
+                .get(url)
+                .set({'User-Agent': userAgent.getRandom()})
+                .charset('gbk');
+        } catch (err) {
+            cb(null);
+            return;
+        }
         const html = res.text;
         const $ = cheerio.load(html);
         const title = $('h1.ph').text();
@@ -66,9 +71,9 @@ export default class {
         let chord_images = imgs.map((el) => {
             return $(el).attr('src');
         });
-        const view_count = 0;
-        const collect_count = 0;
-        const search_count = 0;
+        const view_count = "0";
+        const collect_count = "0";
+        const search_count = "0";
         const data = {
             song_name,
             author_name,
@@ -79,7 +84,9 @@ export default class {
             search_count,
             chord_images: JSON.stringify(chord_images)
         };
-        typeof cb === 'function' && cb(null, data);
+        if(data.song_name){
+            typeof cb === 'function' && cb(null, data);
+        }
         console.log(`**结束抓取${url}**`);
     }
 
@@ -90,10 +97,8 @@ export default class {
      * @private
      */
     async _getSongInfo(name) {
-        const proxyServer = proxyServers[Math.floor(proxyServers.length * Math.random())];
         return await superagent
             .post('http://music.163.com/api/search/pc')
-            // .proxy(proxyServer)
             .set({'User-Agent': userAgent.getRandom()})
             .type('form')
             .send({
@@ -146,6 +151,7 @@ export default class {
     async fetchList() {
         const url = 'https://www.17jita.com/tab/index.php';
         const detailPageUrls = await this._analyseList(url, this.page);
+        console.log(detailPageUrls)
         return new Promise((resolve, reject) => {
             async.mapLimit(detailPageUrls, this.limit, (url, cb) => {
                 console.log(`**开始抓取${url}**`);
@@ -200,7 +206,7 @@ export default class {
                     .charset('gbk');
             const html = res.text;
             const $ = cheerio.load(html);
-            $('.bbs.cl .xs3 a').each((index, el) => {
+            $('.bbs.cl dt a').each((index, el) => {
                 const id = $(el).attr('href').match(/\d+/);
                 const href = `https://www.17jita.com/tab/whole_${id}.html`;
                 result.push(href)

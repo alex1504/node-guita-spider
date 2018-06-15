@@ -240,9 +240,9 @@ export default class {
         $imgs.each((index, img) => {
             chord_images.push($(img).attr('src'));
         });
-        const view_count = [parseInt(Math.random() * 100)].toString();
+        const view_count = "0";
         const collect_count = "0";
-        const search_count = [parseInt(Math.random() * 100)].toString();
+        const search_count = "0";
         const data = {
             song_name,
             author_name,

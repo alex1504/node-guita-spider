@@ -209,9 +209,9 @@ export default class {
                 chord_images.push('http://www.ccguitar.cn' + $(img).attr('src'));
             }
         });
-        const view_count = 0;
-        const collect_count = 0;
-        const search_count = 0;
+        const view_count = "0";
+        const collect_count = "0";
+        const search_count = "0";
         const data = {
             song_name,
             author_name,
