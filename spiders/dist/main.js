@@ -240,17 +240,21 @@ class Spider_17 {
         let chord_images = imgs.map((el) => {
             return $(el).attr('src');
         });
+        let keyword = [query];
         const view_count = "0";
         const collect_count = "0";
         const search_count = "0";
+        const status = "0";
         const data = {
             song_name,
             author_name,
             song_poster,
             query,
+            keyword: JSON.stringify(keyword),
             view_count,
             collect_count,
             search_count,
+            status,
             chord_images: JSON.stringify(chord_images)
         };
         if (data.song_name) {
@@ -629,17 +633,21 @@ class Spider_cc {
                 chord_images.push('http://www.ccguitar.cn' + $(img).attr('src'));
             }
         });
+        let keyword = [query];
         const view_count = "0";
         const collect_count = "0";
         const search_count = "0";
+        const status = "0";
         const data = {
             song_name,
             author_name,
             song_poster,
             query,
+            keyword: JSON.stringify(keyword),
             view_count,
             collect_count,
             search_count,
+            status,
             chord_images: JSON.stringify(chord_images)
         };
         typeof cb === 'function' && cb(null, data);
@@ -928,17 +936,21 @@ class Spider_jitashe {
         $imgs.each((index, img) => {
             chord_images.push($(img).attr('src'));
         });
+        let keyword = [query];
         const view_count = "0";
         const collect_count = "0";
         const search_count = "0";
+        const status = "0";
         const data = {
             song_name,
             author_name,
             song_poster,
             query,
+            keyword: JSON.stringify(keyword),
             view_count,
             collect_count,
             search_count,
+            status,
             chord_images: JSON.stringify(chord_images)
         };
         typeof cb === 'function' && cb(null, data);

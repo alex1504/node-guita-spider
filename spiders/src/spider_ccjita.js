@@ -209,17 +209,21 @@ export default class {
                 chord_images.push('http://www.ccguitar.cn' + $(img).attr('src'));
             }
         });
+        let keyword = [query]
         const view_count = "0";
         const collect_count = "0";
         const search_count = "0";
+        const status = "0";
         const data = {
             song_name,
             author_name,
             song_poster,
             query,
+            keyword: JSON.stringify(keyword),
             view_count,
             collect_count,
             search_count,
+            status,
             chord_images: JSON.stringify(chord_images)
         };
         typeof cb === 'function' && cb(null, data);
