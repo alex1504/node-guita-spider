@@ -5,7 +5,7 @@
 
 ## 接口文档
 
-[http://www.huzerui.com/node-guita-spider/docs](http://www.huzerui.com/node-guita-spider/docs)
+[http://gt-spider.huzerui.com](http://gt-spider.huzerui.com)
 
 ## 主要依赖
 
